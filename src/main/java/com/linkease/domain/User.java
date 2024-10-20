@@ -7,7 +7,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "app_user")
+@Table(name = "app_user")  // Name of the table for users
 public class User {
 
     @Id
@@ -25,9 +25,9 @@ public class User {
     @EqualsAndHashCode.Exclude
     private Set<Link> links;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
-            name = "user_roles",
+            name = "user_roles",  // This table will store the connections between users and roles
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )

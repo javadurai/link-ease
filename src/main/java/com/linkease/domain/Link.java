@@ -32,9 +32,9 @@ public class Link {
     @EqualsAndHashCode.Exclude
     private User user;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "link_tags",
+            name = "link_tags",  // This table will store the connections between links and tags
             joinColumns = @JoinColumn(name = "link_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )

@@ -9,9 +9,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
-import java.util.Optional;
 
 @Configuration
 @RequiredArgsConstructor
@@ -22,18 +22,23 @@ public class DefaultAdminUserConfig {
     private final PasswordEncoder passwordEncoder;
 
     @Bean
+    @Transactional
     public CommandLineRunner createDefaultAdmin() {
         return args -> {
             String defaultAdminUsername = "admin";
             String defaultAdminEmail = "admin@example.com";
 
-            // Check if the admin role exists in the database, fetch or create it
+            // Fetch the admin role from the database
             Role adminRole = roleRepository.findByName("ROLE_ADMIN")
                     .orElseGet(() -> {
                         Role newRole = new Role();
                         newRole.setName("ROLE_ADMIN");
-                        return roleRepository.save(newRole); // Save new admin role
+                        return roleRepository.save(newRole); // Save and return new admin role
                     });
+
+            // Ensure the adminRole is attached to the current Hibernate session
+            adminRole = roleRepository.findById(adminRole.getId())
+                    .orElseThrow(() -> new IllegalStateException("Admin role could not be found after saving"));
 
             // Check if the admin user exists
             if (userRepository.findByUsername(defaultAdminUsername).isEmpty()) {
@@ -43,10 +48,10 @@ public class DefaultAdminUserConfig {
                 admin.setEmail(defaultAdminEmail);
                 admin.setPassword(passwordEncoder.encode("admin123"));
 
-                // Fetch and attach the existing admin role to the user
+                // Attach the existing managed admin role to the user
                 admin.setRoles(Collections.singleton(adminRole));
 
-                // Save the admin user, Hibernate will manage the role relationship
+                // Save the admin user
                 userRepository.save(admin);
                 System.out.println("Default admin user created with username: admin and password: admin123");
             }
