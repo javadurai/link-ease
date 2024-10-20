@@ -1,0 +1,3 @@
+2024-10-20 10:34:49.561400-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ROLE" not found (this database is empty); SQL statement:
+select r1_0.id,r1_0.name from role r1_0 where r1_0.name=? [42104-224]
