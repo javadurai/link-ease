@@ -1,6 +1,8 @@
 package com.linkease.controller;
 
+import com.linkease.domain.Role;
 import com.linkease.domain.User;
+import com.linkease.repository.RoleRepository;
 import com.linkease.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,7 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/users")
@@ -18,6 +21,7 @@ import java.util.Optional;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     // List users with pagination
     @GetMapping
@@ -85,5 +89,31 @@ public class UserController {
     public String deleteUser(@PathVariable Long id) {
         userRepository.deleteById(id);
         return "redirect:/users";
+    }
+
+    // Show form to assign roles to user
+    @GetMapping("/assign-roles/{id}")
+    public String showAssignRolesForm(@PathVariable Long id, Model model) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
+        model.addAttribute("user", user);
+        model.addAttribute("roles", roleRepository.findAll());  // Fetch roles from the role service
+        return "users/assign-roles"; // You will create this HTML page
+    }
+
+    // Handle role assignment to the user
+    @PostMapping("/assign-roles/{id}")
+    public String assignRoles(@PathVariable Long id, @RequestParam List<Long> roleIds) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
+
+        // Assign roles to the user
+        Set<Role> roles = roleIds.stream().map(r -> {
+            Optional<Role> role = roleRepository.findById(r);
+            return role.orElse(null);
+        }).filter(Objects::nonNull).collect(Collectors.toSet());
+        user.setRoles(roles);
+        userRepository.save(user);
+        return "redirect:/users"; // Redirect back to the user list
     }
 }

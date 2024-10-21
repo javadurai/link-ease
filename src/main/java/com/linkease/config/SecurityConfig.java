@@ -1,5 +1,7 @@
 package com.linkease.config;
 
+import com.linkease.security.CustomAuthenticationEntryPoint;
+import com.linkease.security.CustomAuthenticationSuccessHandler;
 import com.linkease.security.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,14 +52,17 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF protection for simplicity (adjust based on your app)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/register", "/login").permitAll() // Public access for registration and login
+                        .requestMatchers("/register", "/login", "/favicon.ico").permitAll() // Public access for registration and login
                         .anyRequest().authenticated() // All other requests need authentication
                 )
                 .formLogin(form -> form
                         .loginPage("/login") // Custom login page
                         .permitAll() // Allow everyone to access the login page
-                        .defaultSuccessUrl("/links", true) // Redirect to home page after successful login
+                        .successHandler(new CustomAuthenticationSuccessHandler())
                         .failureUrl("/login?error=true") // Redirect to login with error message on failure
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout") // Define the logout URL
