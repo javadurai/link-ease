@@ -47,15 +47,23 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // New API for CSRF and HTTP Basic Authentication in Spring Security 6.1+
         http
-                .csrf(AbstractHttpConfigurer::disable)  // Disable CSRF protection (for API-only apps, you can use token-based authentication)
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF protection for simplicity (adjust based on your app)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/**").permitAll()  // Public access for user registration and login
-                        .requestMatchers("/api/links/**").authenticated()  // Authenticated users can access /api/links/**
-                        .anyRequest().authenticated()  // All other requests need authentication
+                        .requestMatchers("/register", "/login").permitAll() // Public access for registration and login
+                        .anyRequest().authenticated() // All other requests need authentication
                 )
-                .httpBasic(withDefaults());  // Using HTTP Basic Authentication
+                .formLogin(form -> form
+                        .loginPage("/login") // Custom login page
+                        .permitAll() // Allow everyone to access the login page
+                        .defaultSuccessUrl("/links", true) // Redirect to home page after successful login
+                        .failureUrl("/login?error=true") // Redirect to login with error message on failure
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout") // Define the logout URL
+                        .logoutSuccessUrl("/login?logout=true") // Redirect to login after logout
+                        .permitAll() // Allow everyone to access the logout
+                );
 
         return http.build();
     }

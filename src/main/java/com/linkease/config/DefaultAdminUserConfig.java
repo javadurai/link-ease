@@ -36,10 +36,6 @@ public class DefaultAdminUserConfig {
                         return roleRepository.save(newRole); // Save and return new admin role
                     });
 
-            // Ensure the adminRole is attached to the current Hibernate session
-            adminRole = roleRepository.findById(adminRole.getId())
-                    .orElseThrow(() -> new IllegalStateException("Admin role could not be found after saving"));
-
             // Check if the admin user exists
             if (userRepository.findByUsername(defaultAdminUsername).isEmpty()) {
                 // Create and persist a new admin user
@@ -48,11 +44,15 @@ public class DefaultAdminUserConfig {
                 admin.setEmail(defaultAdminEmail);
                 admin.setPassword(passwordEncoder.encode("admin123"));
 
-                // Attach the existing managed admin role to the user
+                // Save the admin user first
+                admin = userRepository.save(admin);
+
+                // After user creation, attach the existing admin role to the user
                 admin.setRoles(Collections.singleton(adminRole));
 
-                // Save the admin user
+                // Update the user with the role information
                 userRepository.save(admin);
+
                 System.out.println("Default admin user created with username: admin and password: admin123");
             }
         };
