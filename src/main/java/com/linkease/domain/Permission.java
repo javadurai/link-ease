@@ -1,5 +1,6 @@
 package com.linkease.domain;
 
+import com.linkease.dto.PermissionType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,9 +17,9 @@ public class Permission {
     @Column(unique = true, nullable = false)
     private String name;  // e.g., "page.links.view", "page.links.add", "page.links.delete", "job.refresh.configs"
 
-    // Example: pages, buttons, jobs, etc.
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String type;
+    private PermissionType type;  // Enum to specify PAGE, ACTION, JOB, etc
 
     @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
     private Set<Role> roles;

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Configurations</title>
+    <title>Permissions</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link href="/css/common.css" rel="stylesheet">
@@ -9,34 +9,32 @@
 <body>
 <div class="container mt-4">
     <div th:insert="~{fragments/navbar}"></div>
-    <h1 class="mb-4">Configurations</h1>
+    <h1 class="mb-4">Permissions</h1>
     <!-- Include Alerts -->
     <div th:insert="~{fragments/alerts}"></div>
-    <a href="/configs/create" class="btn btn-primary mb-3">
-        <i class="fas fa-plus"></i> Create New Configuration
+    <a href="/permissions/create" class="btn btn-primary mb-3">
+        <i class="fas fa-plus"></i> Create New Permission
     </a>
 
     <table class="table table-striped">
         <thead>
         <tr>
+            <th>ID</th>
             <th>Name</th>
             <th>Type</th>
-            <th>Value</th>
-            <th>Is Enabled</th>
             <th>Actions</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="config : ${configs}">
-            <td th:text="${config.configName}">
-            <td th:text="${config.configType.type}"></td>
-            <td th:text="${config.configValue}"></td>
-            <td th:text="${config.isEnabled ? 'Yes' : 'No'}"></td>
+        <tr th:each="permission : ${permissions}">
+            <td th:text="${permission.id}"></td>
+            <td th:text="${permission.name}"></td>
+            <td th:text="${permission.type}"></td>
             <td>
-                <a class="btn btn-warning btn-sm" th:href="@{/configs/edit/{id}(id=${config.id})}">
+                <a class="btn btn-warning btn-sm" th:href="@{/permissions/edit/{id}(id=${permission.id})}">
                     <i class="fas fa-edit"></i>
                 </a>
-                <a class="btn btn-danger btn-sm" th:href="@{/configs/delete/{id}(id=${config.id})}">
+                <a class="btn btn-danger btn-sm" th:href="@{/permissions/delete/{id}(id=${permission.id})}">
                     <i class="fas fa-trash"></i>
                 </a>
             </td>

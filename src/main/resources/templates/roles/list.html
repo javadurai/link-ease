@@ -16,6 +16,7 @@
 
     <!-- Include Alerts -->
     <div th:insert="~{fragments/alerts}"></div>
+
     <table class="table table-striped table-hover">
         <thead class="thead-dark">
         <tr>
@@ -35,6 +36,11 @@
                 <a class="btn btn-danger btn-sm" th:href="@{/roles/delete/{id}(id=${role.id})}">
                     <i class="fas fa-trash"></i>
                 </a>
+                <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#permissionsModal"
+                        th:attr="data-role-id=${role.id}"
+                        onclick="loadPermissions(${role.id})">
+                    <i class="fas fa-key"></i>
+                </button>
             </td>
         </tr>
         </tbody>
@@ -59,7 +65,68 @@
 
 <div th:insert="~{fragments/footer}"></div>
 
+<!-- Permissions Modal -->
+<div class="modal fade" id="permissionsModal" tabindex="-1" role="dialog" aria-labelledby="permissionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="permissionsModalLabel">Assign Permissions</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/roles/assign-permissions" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="roleId" id="roleId">
+
+                    <!-- Permissions list will be populated here -->
+                    <div id="permissionsList"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Assign Permissions</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Script to load permissions into the modal -->
+<script>
+    function loadPermissions(roleId) {
+        document.getElementById("roleId").value = roleId;
+
+        // Make an AJAX call to fetch the permissions for the selected role
+        fetch(`/permissions/role/${roleId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Clear the existing permissions in the modal
+                console.log(data);
+                const permissionsList = document.getElementById("permissionsList");
+                permissionsList.innerHTML = "";
+
+                // Populate the modal with the fetched permissions
+                data.forEach(permission => {
+                    const isChecked = permission.assigned ? "checked" : "";
+                    const permissionHtml = `
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="${permission.id}" id="permission${permission.id}" ${isChecked}>
+                            <label class="form-check-label" for="permission${permission.id}">
+                                ${permission.name}
+                            </label>
+                        </div>`;
+                    permissionsList.insertAdjacentHTML('beforeend', permissionHtml);
+                });
+            })
+            .catch(error => {
+                console.error("Error fetching permissions:", error);
+            });
+    }
+</script>
+
 </body>
 </html>

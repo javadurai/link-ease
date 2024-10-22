@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Permission</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="/css/common.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <div th:insert="~{fragments/navbar}"></div>
+    <h1>Edit Permission</h1>
+    <!-- Include Alerts -->
+    <div th:insert="~{fragments/alerts}"></div>
+
+    <!-- Edit Form -->
+    <form th:action="@{/permissions/edit/{id}(id=${permission.id})}" th:object="${permission}" method="post">
+
+        <!-- Dropdown for Permission Type -->
+        <div class="form-group">
+            <label for="type">Permission Type</label>
+            <select class="form-control" id="type" th:field="*{type}" onchange="updatePrefix()">
+                <option th:each="type : ${permissionTypes}" th:value="${type}" th:text="${type}">Select Type</option>
+            </select>
+        </div>
+
+        <!-- Permission Name (Prefix + Editable Suffix) -->
+        <div class="form-group">
+            <label for="name">Permission Name</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="prefix" readonly>
+                <input type="text" class="form-control" id="suffix" th:field="*{name}" placeholder="Enter permission suffix">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+</div>
+<div th:insert="~{fragments/footer}"></div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- JavaScript to handle dynamic prefix update -->
+<script>
+    // Dynamically update prefix based on permission type
+    function updatePrefix() {
+        var type = document.getElementById("type").value;
+        var prefixInput = document.getElementById("prefix");
+
+        if (type === 'PAGE') {
+            prefixInput.value = 'page.';
+        } else if (type === 'JOB') {
+            prefixInput.value = 'job.';
+        } else if (type === 'BUTTON') {
+            prefixInput.value = 'button.';
+        } else {
+            prefixInput.value = '';
+        }
+    }
+
+    // Set the prefix and suffix values when the page loads for editing
+    document.addEventListener("DOMContentLoaded", function() {
+        var fullName = document.getElementById("suffix").value;
+        var prefixInput = document.getElementById("prefix");
+        var suffixInput = document.getElementById("suffix");
+
+        // Determine the prefix based on the current permission name
+        if (fullName.startsWith('page.')) {
+            prefixInput.value = 'page.';
+            suffixInput.value = fullName.substring(5);  // Remove the 'page.' prefix from the full name
+        } else if (fullName.startsWith('job.')) {
+            prefixInput.value = 'job.';
+            suffixInput.value = fullName.substring(4);  // Remove the 'job.' prefix
+        } else if (fullName.startsWith('button.')) {
+            prefixInput.value = 'button.';
+            suffixInput.value = fullName.substring(7);  // Remove the 'button.' prefix
+        }
+    });
+</script>
+</body>
+</html>
