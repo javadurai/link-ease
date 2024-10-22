@@ -1,5 +1,6 @@
 package com.linkease.controller;
 
+import com.linkease.config.ConfigLoader;
 import com.linkease.domain.Config;
 import com.linkease.repository.ConfigTypeRepository;
 import com.linkease.service.ConfigService;
@@ -15,6 +16,7 @@ public class ConfigController {
 
     private final ConfigService configService;
     private final ConfigTypeRepository configTypeRepository;
+    private final ConfigLoader configLoader;
 
     @GetMapping
     public String getAllConfigs(Model model) {
@@ -32,6 +34,7 @@ public class ConfigController {
     @PostMapping("/create")
     public String createConfig(@ModelAttribute Config config) {
         configService.createConfig(config);
+        configLoader.refreshConfigs();
         return "redirect:/configs";
     }
 
@@ -46,12 +49,14 @@ public class ConfigController {
     @PostMapping("/edit/{id}")
     public String updateConfig(@PathVariable Long id, @ModelAttribute Config config) {
         configService.updateConfig(id, config);
+        configLoader.refreshConfigs();
         return "redirect:/configs";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteConfig(@PathVariable Long id) {
         configService.deleteConfig(id);
+        configLoader.refreshConfigs();
         return "redirect:/configs";
     }
 }
