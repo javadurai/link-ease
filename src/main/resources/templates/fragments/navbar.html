@@ -1,10 +1,13 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="/">LinkEase</a>
+    <a class="navbar-brand" href="/">
+        <img src="/icon.png" alt="Logo" width="30" height="30" class="d-inline-block align-top" />
+        LinkEase
+    </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav mr-auto"> <!-- Added mr-auto to push logout to the right -->
+        <ul class="navbar-nav mr-auto">
             <li class="nav-item">
                 <a class="nav-link" href="/users">Users</a>
             </li>
@@ -14,10 +17,13 @@
             <li class="nav-item">
                 <a class="nav-link" href="/roles">Roles</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/configs">Configs</a>
+            </li>
         </ul>
         <ul class="navbar-nav"> <!-- New list for the logout link -->
             <li class="nav-item">
-                <a class="nav-link" href="/logout">Logout</a> <!-- Assuming this is the logout endpoint -->
+                <a class="nav-link" href="/logout">Logout</a>
             </li>
         </ul>
     </div>

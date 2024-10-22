@@ -2,8 +2,11 @@ package com.linkease.controller;
 
 import com.linkease.domain.Link;
 import com.linkease.domain.User;
+import com.linkease.dto.SiteInfo;
 import com.linkease.repository.LinkRepository;
 import com.linkease.repository.UserRepository;
+import com.linkease.service.SiteInfoExtractorService;
+import com.linkease.util.Base64Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -24,13 +28,15 @@ public class LinkController {
 
     private final LinkRepository linkRepository;
     private final UserRepository userRepository;
+    private final SiteInfoExtractorService siteInfoExtractorService;
+    private final Base64Util base64Util;
 
     // List links with pagination
     @GetMapping
     public String getAllLinks(
             @RequestParam Optional<String> url,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "5") int size,
             Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Link> linkPage;
@@ -41,6 +47,7 @@ public class LinkController {
             linkPage = linkRepository.findAll(pageable);
         }
 
+        model.addAttribute("base64Util", base64Util);
         model.addAttribute("links", linkPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", linkPage.getTotalPages());
@@ -66,13 +73,18 @@ public class LinkController {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
 
-        // Set the current date and user
-        link.setCreatedAt(LocalDateTime.now());
-        link.setUpdatedAt(LocalDateTime.now());
         link.setUser(user); // Set the logged-in user
-
+        updateSiteInfo(link);
         linkRepository.save(link);
         return "redirect:/links";
+    }
+
+    private void updateSiteInfo(Link link) {
+        SiteInfo siteInfo = siteInfoExtractorService.getSiteInfo(link.getUrl());
+        link.setTitle(siteInfo.getTitle());
+        link.setSite(siteInfo.getSite());
+        link.setIcon(siteInfo.getFavicon());
+        link.setDescription(siteInfo.getDescription());
     }
 
     // Show form to edit an existing link
@@ -91,8 +103,7 @@ public class LinkController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid link Id:" + id));
 
         link.setUrl(linkDetails.getUrl());
-        link.setDescription(linkDetails.getDescription());
-        link.setUpdatedAt(LocalDateTime.now());
+        updateSiteInfo(link);
         linkRepository.save(link);
         return "redirect:/links";
     }

@@ -1,5 +1,6 @@
 package com.linkease.domain;
 
+import com.linkease.util.TimeUtil;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,6 +20,11 @@ public class Link {
     private String title;
 
     private String url;
+
+    private String site;
+
+    @Lob
+    private byte[] icon;
 
     private String description;
 
@@ -41,4 +47,18 @@ public class Link {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Tag> tags;
+
+    public String getTimeAgo(){
+        return TimeUtil.timeAgo(this.createdAt);
+    }
+
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

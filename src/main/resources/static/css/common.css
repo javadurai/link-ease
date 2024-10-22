@@ -1,0 +1,18 @@
+.ellipsis {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.table-borderless tbody,
+.table-borderless td,
+.table-borderless th {
+    border: none;
+}
+
+
+.container {
+    border-left: 1px solid #eff4f7; /* Blue dashed left border */
+    border-right: 1px solid #eff4f7; /* Blue dashed right border */
+}

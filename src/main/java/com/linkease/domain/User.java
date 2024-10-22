@@ -7,18 +7,25 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "app_user")  // Name of the table for users
+@Table(name = "app_user")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String fullName;
+
+    @Column(unique = true, nullable = false)
     private String username;
 
+    @Column(unique = true, nullable = false)
     private String email;
 
     private String password;
+
+    @Lob
+    private byte[] picture;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude

@@ -4,6 +4,7 @@
     <title>Create Link</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="/css/common.css" rel="stylesheet">
 </head>
 <body>
 <div class="container mt-4">
@@ -15,16 +16,8 @@
 
     <form th:action="@{/links/create}" th:object="${link}" method="post" class="mt-4">
         <div class="form-group">
-            <label for="title">Title:</label>
-            <input type="text" id="title" th:field="*{title}" class="form-control" required/>
-        </div>
-        <div class="form-group">
             <label for="url">URL:</label>
             <input type="text" id="url" th:field="*{url}" class="form-control" required/>
-        </div>
-        <div class="form-group">
-            <label for="description">Description:</label>
-            <textarea id="description" th:field="*{description}" class="form-control"></textarea>
         </div>
         <div class="form-group">
             <button type="submit" class="btn btn-success">

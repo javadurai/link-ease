@@ -8,9 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,6 +24,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // List users with pagination
     @GetMapping
@@ -77,9 +80,10 @@ public class UserController {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
 
+        user.setFullName(userDetails.getFullName());
         user.setUsername(userDetails.getUsername());
         user.setEmail(userDetails.getEmail());
-        user.setPassword(userDetails.getPassword());  // Should be encoded in practice
+        //user.setPassword(userDetails.getPassword());  // Should be encoded in practice
         userRepository.save(user);
         return "redirect:/users";
     }
@@ -115,5 +119,22 @@ public class UserController {
         user.setRoles(roles);
         userRepository.save(user);
         return "redirect:/users"; // Redirect back to the user list
+    }
+
+    // Handle password reset
+    @GetMapping("/reset-password/{id}")
+    public String resetPassword(@PathVariable Long id, Model model) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
+
+        // Generate a new random password (you can use a different method if needed)
+        String newPassword = RandomStringUtils.randomAlphanumeric(10); // Generates a 10-character password
+
+        // You should encode the password before saving it
+        user.setPassword(passwordEncoder.encode(newPassword)); // In practice, encode the password
+        userRepository.save(user);
+
+        model.addAttribute("message", "Password reset successfully. New password: " + newPassword);
+        return "redirect:/users"; // Redirect to the user list, or show the new password if necessary
     }
 }

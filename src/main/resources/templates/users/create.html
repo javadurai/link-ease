@@ -4,6 +4,7 @@
     <title>Create User</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="/css/common.css" rel="stylesheet">
 </head>
 <body>
 <div class="container mt-4">
@@ -13,7 +14,11 @@
     <!-- Include Alerts -->
     <div th:insert="~{fragments/alerts}"></div>
 
-    <form th:action="@{/users}" th:object="${user}" method="post" class="mt-4">
+    <form th:action="@{/users/create}" th:object="${user}" method="post" class="mt-4">
+        <div class="form-group">
+            <label for="fullname">Full Name:</label>
+            <input type="text" id="fullname" th:field="*{fullName}" class="form-control" required/>
+        </div>
         <div class="form-group">
             <label for="username">Username:</label>
             <input type="text" id="username" th:field="*{username}" class="form-control" required/>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Configurations</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="/css/common.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <div th:insert="~{fragments/navbar}"></div>
+    <h1 class="mb-4">Configurations</h1>
+    <!-- Include Alerts -->
+    <div th:insert="~{fragments/alerts}"></div>
+    <a href="/configs/create" class="btn btn-primary mb-3">
+        <i class="fas fa-plus"></i> Create New Configuration
+    </a>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Value</th>
+            <th>Is Enabled</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="config : ${configs}">
+            <td th:text="${config.configType.type}"></td>
+            <td th:text="${config.configName}"></td>
+            <td th:text="${config.configValue}"></td>
+            <td th:text="${config.isEnabled ? 'Yes' : 'No'}"></td>
+            <td>
+                <a class="btn btn-warning btn-sm" th:href="@{/configs/edit/{id}(id=${config.id})}">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a class="btn btn-danger btn-sm" th:href="@{/configs/delete/{id}(id=${config.id})}">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div th:insert="~{fragments/footer}"></div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

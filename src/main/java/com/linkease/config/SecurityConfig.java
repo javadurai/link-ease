@@ -3,6 +3,7 @@ package com.linkease.config;
 import com.linkease.security.CustomAuthenticationEntryPoint;
 import com.linkease.security.CustomAuthenticationSuccessHandler;
 import com.linkease.security.CustomUserDetailsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,13 +21,12 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
+    private final ConfigLoader configLoader;
 
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
-        this.customUserDetailsService = customUserDetailsService;
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -68,7 +69,18 @@ public class SecurityConfig {
                         .logoutUrl("/logout") // Define the logout URL
                         .logoutSuccessUrl("/login?logout=true") // Redirect to login after logout
                         .permitAll() // Allow everyone to access the logout
-                );
+                )
+//                .sessionManagement(session -> session
+//                        .maximumSessions(1) // Allow only one active session per user
+//                        .expiredUrl("/login?expired=true") // Redirect to login if session expires
+//                )
+//                .sessionManagement(session -> session
+//                        .invalidSessionUrl("/login?invalid=true") // Redirect if session is invalid
+//                        .sessionFixation().migrateSession() // Control session fixation protection
+//                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Create session only if needed
+//                        //.sessionTimeout(1800) // Set session timeout in seconds (e.g., 1800 seconds = 30 minutes)
+//                )
+        ;
 
         return http.build();
     }

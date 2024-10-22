@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Config</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="/css/common.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <div th:insert="~{fragments/navbar}"></div>
+    <h1>Create Config</h1>
+    <!-- Include Alerts -->
+    <div th:insert="~{fragments/alerts}"></div>
+    <form th:action="@{/configs/create}" th:object="${config}" method="post">
+
+        <!-- Config Type Dropdown -->
+        <div class="form-group">
+            <label for="configType">Config Type</label>
+            <select class="form-control" id="configType" th:field="*{configType.id}" onchange="updateConfigValueField()">
+                <option value="">Select Config Type</option>
+                <option th:each="type : ${configTypes}" th:value="${type.id}" th:text="${type.type}"></option>
+            </select>
+        </div>
+
+        <!-- Config Name -->
+        <div class="form-group">
+            <label for="configName">Config Name</label>
+            <input type="text" class="form-control" id="configName" th:field="*{configName}" placeholder="Enter name" required>
+        </div>
+
+        <!-- Config Value (Dynamic Field) -->
+        <div class="form-group" id="configValueContainer">
+            <label for="configValue">Config Value</label>
+            <input type="text" class="form-control" id="configValue" th:field="*{configValue}" placeholder="Enter value" required>
+        </div>
+
+        <!-- Is Enabled -->
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="isEnabled" th:field="*{isEnabled}">
+            <label class="form-check-label" for="isEnabled">Enabled</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>
+
+<div th:insert="~{fragments/footer}"></div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script src="/js/config-selector.js"></script>
+</body>
+</html>
