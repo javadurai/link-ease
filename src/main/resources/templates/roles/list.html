@@ -38,7 +38,7 @@
                 </a>
                 <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#permissionsModal"
                         th:attr="data-role-id=${role.id}"
-                        onclick="loadPermissions(${role.id})">
+                        th:onclick="'loadPermissions(' + ${role.id} + ')'">
                     <i class="fas fa-key"></i>
                 </button>
             </td>
@@ -83,7 +83,7 @@
                     <div id="permissionsList"></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Assign Permissions</button>
+                    <button type="button" class="btn btn-primary" onclick="savePermissions()">Assign Permissions</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </form>
@@ -97,35 +97,79 @@
 
 <!-- Script to load permissions into the modal -->
 <script>
-    function loadPermissions(roleId) {
-        document.getElementById("roleId").value = roleId;
+    function savePermissions() {
+         // Get the role ID
+         let roleId = document.getElementById("roleId").value;
 
-        // Make an AJAX call to fetch the permissions for the selected role
-        fetch(`/permissions/role/${roleId}`)
-            .then(response => response.json())
-            .then(data => {
-                // Clear the existing permissions in the modal
-                console.log(data);
-                const permissionsList = document.getElementById("permissionsList");
-                permissionsList.innerHTML = "";
+         // Collect selected permissions
+         const selectedPermissions = [];
+         const checkboxes = document.querySelectorAll('#permissionsList .form-check-input');
 
-                // Populate the modal with the fetched permissions
-                data.forEach(permission => {
-                    const isChecked = permission.assigned ? "checked" : "";
-                    const permissionHtml = `
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="${permission.id}" id="permission${permission.id}" ${isChecked}>
-                            <label class="form-check-label" for="permission${permission.id}">
-                                ${permission.name}
-                            </label>
-                        </div>`;
-                    permissionsList.insertAdjacentHTML('beforeend', permissionHtml);
-                });
-            })
-            .catch(error => {
-                console.error("Error fetching permissions:", error);
-            });
-    }
+         checkboxes.forEach(checkbox => {
+             if (checkbox.checked) {
+                 selectedPermissions.push(checkbox.value);
+             }
+         });
+
+         // Create a form data object
+         const formData = new URLSearchParams();
+         formData.append("roleId", roleId);
+         selectedPermissions.forEach(permissionId => {
+             formData.append("permissions", permissionId);
+         });
+
+         // Send the POST request to the controller
+         fetch("/roles/assign-permissions", {
+             method: "POST",
+             headers: {
+                 "Content-Type": "application/x-www-form-urlencoded",
+             },
+             body: formData.toString() // Convert form data to URL-encoded string
+         })
+         .then(response => {
+             if (response.ok) {
+                 // Redirect to the roles page after a successful response
+                 window.location.href = "/roles";
+             } else {
+                 // Handle the case where the role is not found
+                 window.location.href = "/roles?error=RoleNotFound";
+             }
+         })
+         .catch(error => {
+             console.error("Error while saving permissions:", error);
+             // Optionally, handle the error (e.g., show a message to the user)
+         });
+     }
+
+
+     function loadPermissions(roleId) {
+         document.getElementById("roleId").value = roleId;
+
+         // Make an AJAX call to fetch the permissions for the selected role
+         fetch(`/permissions/role/${roleId}`)
+             .then(response => response.json())
+             .then(data => {
+                 // Clear the existing permissions in the modal
+                 const permissionsList = document.getElementById("permissionsList");
+                 permissionsList.innerHTML = "";
+
+                 // Populate the modal with the fetched permissions
+                 data.forEach(permission => {
+                     const isChecked = permission.assigned ? "checked" : "";
+                     const permissionHtml = `
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" value="${permission.id}" id="permission${permission.id}" ${isChecked}>
+                             <label class="form-check-label" for="permission${permission.id}">
+                                 ${permission.name}
+                             </label>
+                         </div>`;
+                     permissionsList.insertAdjacentHTML('beforeend', permissionHtml);
+                 });
+             })
+             .catch(error => {
+                 console.error("Error fetching permissions:", error);
+             });
+     }
 </script>
 
 </body>

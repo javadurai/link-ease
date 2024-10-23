@@ -37,7 +37,7 @@ public class PermissionController {
     }
 
     @PostMapping("/create")
-    public String createPermission(@ModelAttribute Permission permission, @RequestParam("suffix") String suffix) {
+    public String createPermission(@ModelAttribute Permission permission, @RequestParam("name") String suffix) {
         String prefix = "";
         if (permission.getType() == PermissionType.PAGE) {
             prefix = "page.";
@@ -63,7 +63,7 @@ public class PermissionController {
     }
 
     @PostMapping("/edit/{id}")
-    public String updatePermission(@PathVariable Long id, @ModelAttribute Permission permission, @RequestParam("suffix") String suffix) {
+    public String updatePermission(@PathVariable Long id, @ModelAttribute Permission permission, @RequestParam("name") String suffix) {
         String prefix = "";
         if (permission.getType() == PermissionType.PAGE) {
             prefix = "page.";

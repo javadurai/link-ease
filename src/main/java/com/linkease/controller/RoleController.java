@@ -97,10 +97,12 @@ public class RoleController {
             Role role = roleOptional.get();
             // Fetch the selected permissions from the database
             List<Permission> selectedPermissions = permissionRepository.findAllById(permissionIds);
+            // Make sure the collection is initialized (use getPermissions() to force initialization if using Lazy fetching)
+            role.getPermissions().clear();  // Clear existing permissions
             // Assign the permissions to the role
             role.setPermissions(new HashSet<>(selectedPermissions));
             // Save the role with updated permissions
-            roleRepository.save(role);
+            role = roleRepository.save(role);
         } else {
             // Handle the case when the role is not found (e.g., throw an exception or add a redirect with an error message)
             return "redirect:/roles?error=RoleNotFound";
