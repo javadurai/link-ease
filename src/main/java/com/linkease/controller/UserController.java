@@ -106,10 +106,10 @@ public class UserController {
     }
 
     // Handle role assignment to the user
-    @PostMapping("/assign-roles/{id}")
-    public String assignRoles(@PathVariable Long id, @RequestParam List<Long> roleIds) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
+    @PostMapping("/assign-roles")
+    public String assignRoles(@RequestParam("userId") Long userId, @RequestParam("roles") List<Long> roleIds) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + userId));
 
         // Assign roles to the user
         Set<Role> roles = roleIds.stream().map(r -> {

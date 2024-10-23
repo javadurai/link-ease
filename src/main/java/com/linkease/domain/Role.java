@@ -9,7 +9,6 @@ import java.util.Set;
 
 @Data
 @Entity
-@EqualsAndHashCode(of = {"id", "name"})
 public class Role {
 
     @Id
@@ -21,6 +20,7 @@ public class Role {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @JoinTable(
             name = "role_permissions",
             joinColumns = @JoinColumn(name = "role_id"),
@@ -29,5 +29,10 @@ public class Role {
     private Set<Permission> permissions;
 
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
     private Set<User> users;
+
+    public int getPermissionsCount(){
+        return permissions != null ? permissions.size() : 0;
+    }
 }

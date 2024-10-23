@@ -3,6 +3,7 @@ package com.linkease.domain;
 import com.linkease.dto.PermissionType;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Set;
 
@@ -19,8 +20,10 @@ public class Permission {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @EqualsAndHashCode.Exclude
     private PermissionType type;  // Enum to specify PAGE, ACTION, JOB, etc
 
     @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
     private Set<Role> roles;
 }

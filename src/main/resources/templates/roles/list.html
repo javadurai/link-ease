@@ -28,7 +28,7 @@
         <tbody>
         <tr th:each="role : ${roles}">
             <td th:text="${role.id}"></td>
-            <td th:text="${role.name}"></td>
+            <td th:text="${role.name} + ' (Has ' + ${role.permissionsCount} + ' permissions)'"></td>
             <td>
                 <a class="btn btn-warning btn-sm" th:href="@{/roles/edit/{id}(id=${role.id})}">
                     <i class="fas fa-edit"></i>

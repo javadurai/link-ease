@@ -2,8 +2,12 @@ package com.linkease.controller;
 
 import com.linkease.domain.Permission;
 import com.linkease.domain.Role;
+import com.linkease.domain.User;
+import com.linkease.dto.PermissionDTO;
+import com.linkease.dto.RoleDTO;
 import com.linkease.repository.PermissionRepository;
 import com.linkease.repository.RoleRepository;
+import com.linkease.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/roles")
@@ -23,6 +28,7 @@ public class RoleController {
 
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
+    private final UserRepository userRepository;
 
     // List roles with pagination
     @GetMapping
@@ -37,7 +43,7 @@ public class RoleController {
         if (name.isPresent()) {
             rolePage = roleRepository.findByNameContaining(name.get(), pageable);
         } else {
-            rolePage = roleRepository.findAll(pageable);
+            rolePage = roleRepository.findAllWithPermissions(pageable);
         }
 
         model.addAttribute("roles", rolePage.getContent());
@@ -102,12 +108,27 @@ public class RoleController {
             // Assign the permissions to the role
             role.setPermissions(new HashSet<>(selectedPermissions));
             // Save the role with updated permissions
-            role = roleRepository.save(role);
+            roleRepository.save(role);
         } else {
             // Handle the case when the role is not found (e.g., throw an exception or add a redirect with an error message)
             return "redirect:/roles?error=RoleNotFound";
         }
         return "redirect:/roles";
+    }
+
+    @GetMapping("/user/{userId}")
+    @ResponseBody
+    public List<RoleDTO> getRolesByUser(@PathVariable Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+        List<Role> allRoles = roleRepository.findAll();
+
+        // Map permissions with assigned status
+        return allRoles.stream()
+                .map(role -> {
+                    boolean isAssigned = user.getRoles().contains(role);
+                    return new RoleDTO(role.getId(), role.getName(), isAssigned);
+                })
+                .collect(Collectors.toList());
     }
 
 }

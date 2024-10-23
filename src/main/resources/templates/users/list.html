@@ -38,9 +38,11 @@
                 <a th:href="@{/users/delete/{id}(id=${user.id})}" class="btn btn-danger btn-sm">
                     <i class="fas fa-trash"></i>
                 </a>
-                <a th:href="@{/users/assign-roles/{id}(id=${user.id})}" class="btn btn-info btn-sm">
+                <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#rolesModel"
+                        th:attr="data-user-id=${user.id}"
+                        th:onclick="'loadRoles(' + ${user.id} + ')'">
                     <i class="fas fa-user-tag"></i>
-                </a>
+                </button>
                 <a th:href="@{/users/reset-password/{id}(id=${user.id})}" class="btn btn-secondary btn-sm">
                     <i class="fas fa-key"></i>
                 </a>
@@ -52,7 +54,110 @@
 
 <div th:insert="~{fragments/footer}"></div>
 
+<!-- Roles Modal -->
+<div class="modal fade" id="rolesModel" tabindex="-1" role="dialog" aria-labelledby="rolesModelLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rolesModelLabel">Assign Roles</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/users/assign-roles" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="userId" id="userId">
+
+                    <!-- Roles list will be populated here -->
+                    <div id="rolesList"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="saveRoles()">Assign Roles</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Script to load Roles into the modal -->
+<script>
+    function saveRoles() {
+         // Get the role ID
+         let userId = document.getElementById("userId").value;
+
+         // Collect selected Roles
+         const selectedRoles = [];
+         const checkboxes = document.querySelectorAll('#rolesList .form-check-input');
+
+         checkboxes.forEach(checkbox => {
+             if (checkbox.checked) {
+                 selectedRoles.push(checkbox.value);
+             }
+         });
+
+         // Create a form data object
+         const formData = new URLSearchParams();
+         formData.append("userId", userId);
+         selectedRoles.forEach(roleId => {
+             formData.append("roles", roleId);
+         });
+
+         // Send the POST request to the controller
+         fetch("/users/assign-roles", {
+             method: "POST",
+             headers: {
+                 "Content-Type": "application/x-www-form-urlencoded",
+             },
+             body: formData.toString() // Convert form data to URL-encoded string
+         })
+         .then(response => {
+             if (response.ok) {
+                 // Redirect to the roles page after a successful response
+                 window.location.href = "/users";
+             } else {
+                 // Handle the case where the role is not found
+                 window.location.href = "/users?error=RoleNotFound";
+             }
+         })
+         .catch(error => {
+             console.error("Error while saving Roles:", error);
+             // Optionally, handle the error (e.g., show a message to the user)
+         });
+     }
+
+
+     function loadRoles(userId) {
+         document.getElementById("userId").value = userId;
+
+         // Make an AJAX call to fetch the Roles for the selected role
+         fetch(`/roles/user/${userId}`)
+             .then(response => response.json())
+             .then(data => {
+                 // Clear the existing Roles in the modal
+                 const rolesList = document.getElementById("rolesList");
+                 rolesList.innerHTML = "";
+
+                 // Populate the modal with the fetched Roles
+                 data.forEach(role => {
+                     const isChecked = role.assigned ? "checked" : "";
+                     const roleHtml = `
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" value="${role.id}" id="role${role.id}" ${isChecked}>
+                             <label class="form-check-label" for="role${role.id}">
+                                 ${role.name}
+                             </label>
+                         </div>`;
+                     rolesList.insertAdjacentHTML('beforeend', roleHtml);
+                 });
+             })
+             .catch(error => {
+                 console.error("Error fetching Roles:", error);
+             });
+     }
+</script>
 </body>
 </html>

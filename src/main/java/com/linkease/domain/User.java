@@ -14,6 +14,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @EqualsAndHashCode.Exclude
     private String fullName;
 
     @Column(unique = true, nullable = false)
@@ -22,9 +23,11 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @EqualsAndHashCode.Exclude
     private String password;
 
     @Lob
+    @EqualsAndHashCode.Exclude
     private byte[] picture;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
