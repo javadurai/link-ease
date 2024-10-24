@@ -52,6 +52,21 @@
         </tr>
         </tbody>
     </table>
+    <!-- Pagination -->
+    <nav>
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                <a class="page-link" th:href="@{/permissions(page=${currentPage - 1}, size=${size})}">Previous</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link" th:text="${i + 1}" th:href="@{/permissions(page=${i}, size=${size})}"></a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+                <a class="page-link" th:href="@{/permissions(page=${currentPage + 1}, size=${size})}">Next</a>
+            </li>
+        </ul>
+    </nav>
 </div>
 
 <div th:insert="~{fragments/footer}"></div>

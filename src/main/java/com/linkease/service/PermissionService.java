@@ -3,6 +3,8 @@ package com.linkease.service;
 import com.linkease.domain.Permission;
 import com.linkease.repository.PermissionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +15,9 @@ public class PermissionService {
 
     private final PermissionRepository permissionRepository;
 
+    public Page<Permission> findAll(Pageable pageable) {
+        return permissionRepository.findAll(pageable);
+    }
     public List<Permission> findAll() {
         return permissionRepository.findAll();
     }
@@ -35,5 +40,9 @@ public class PermissionService {
 
     public void delete(Long id) {
         permissionRepository.deleteById(id);
+    }
+
+    public Page<Permission> findByNameContaining(String name, Pageable pageable) {
+        return permissionRepository.findByNameContaining(name, pageable);
     }
 }

@@ -5,6 +5,7 @@ import com.linkease.domain.Role;
 import com.linkease.domain.User;
 import com.linkease.dto.PermissionDTO;
 import com.linkease.dto.RoleDTO;
+import com.linkease.exception.ResourceNotFoundException;
 import com.linkease.repository.PermissionRepository;
 import com.linkease.repository.RoleRepository;
 import com.linkease.repository.UserRepository;
@@ -119,7 +120,7 @@ public class RoleController {
     @GetMapping("/user/{userId}")
     @ResponseBody
     public List<RoleDTO> getRolesByUser(@PathVariable Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(    "Invalid user ID"));
         List<Role> allRoles = roleRepository.findAll();
 
         // Map permissions with assigned status

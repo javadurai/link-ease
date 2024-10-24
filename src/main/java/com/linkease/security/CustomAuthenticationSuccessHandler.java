@@ -17,6 +17,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         // Redirect to the original requested URL or default page
         String targetUrl = request.getSession().getAttribute(SecurityConstants.TARGET_URL) != null ?
                 (String) request.getSession().getAttribute(SecurityConstants.TARGET_URL) : "/";
+
+        // To handle error page
+        if("/error".equals(targetUrl)){
+            targetUrl = "/";
+        }
+
         request.getSession().removeAttribute(SecurityConstants.TARGET_URL);
         response.sendRedirect(targetUrl);
     }

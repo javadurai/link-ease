@@ -7,11 +7,15 @@ import com.linkease.dto.PermissionType;
 import com.linkease.repository.RoleRepository;
 import com.linkease.service.PermissionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -23,9 +27,27 @@ public class PermissionController {
     private final RoleRepository roleRepository;
 
     @GetMapping
-    public String listPermissions(Model model) {
-        List<Permission> permissions = permissionService.findAll();
-        model.addAttribute("permissions", permissions);
+    public String listPermissions(
+            @RequestParam Optional<String> name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Permission> rolePage;
+
+        if (name.isPresent()) {
+            rolePage = permissionService.findByNameContaining(name.get(), pageable);
+        } else {
+            rolePage = permissionService.findAll(pageable);
+        }
+
+        model.addAttribute("permissions", rolePage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", rolePage.getTotalPages());
+        model.addAttribute("totalItems", rolePage.getTotalElements());
+
+
         return "permissions/list";
     }
 
