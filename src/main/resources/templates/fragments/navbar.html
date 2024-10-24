@@ -28,7 +28,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/permissions">
-                    <i class="fas fa-user-tag"></i> <!-- Roles Icon -->
+                    <i class="fas fa-key"></i> <!-- Permissions Icon -->
                     Permissions
                 </a>
             </li>
@@ -39,7 +39,23 @@
                 </a>
             </li>
         </ul>
-        <ul class="navbar-nav"> <!-- New list for the logout link -->
+        <ul class="navbar-nav"> <!-- New list for the profile and logout links -->
+            <li class="nav-item dropdown"> <!-- Dropdown for Profile -->
+                <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user"></i> <!-- Profile Icon -->
+                    Profile
+                </a>
+                <div class="dropdown-menu" aria-labelledby="profileDropdown">
+                    <a class="dropdown-item" href="/profile">
+                        <i class="fas fa-user-circle"></i> <!-- Profile Icon -->
+                        View Profile
+                    </a>
+                    <a class="dropdown-item" href="/profile/change-password">
+                        <i class="fas fa-lock"></i> <!-- Change Password Icon -->
+                        Change Password
+                    </a>
+                </div>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="/logout">
                     <i class="fas fa-sign-out-alt"></i> <!-- Logout Icon -->

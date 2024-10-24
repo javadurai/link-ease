@@ -36,6 +36,8 @@ public class User {
     private Set<Link> links;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @JoinTable(
             name = "user_roles",  // This table will store the connections between users and roles
             joinColumns = @JoinColumn(name = "user_id"),
