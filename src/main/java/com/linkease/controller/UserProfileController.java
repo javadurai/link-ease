@@ -133,6 +133,6 @@ public class UserProfileController {
 
         // Redirect back to the profile or show a success message
         model.addAttribute("success", "Password changed successfully.");
-        return "profile/view";  // You can redirect to profile or any other page
+        return "redirect:/profile";  // You can redirect to profile or any other page
     }
 }

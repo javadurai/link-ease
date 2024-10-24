@@ -12,6 +12,12 @@
 
     <h1>User Profile</h1>
 
+    <!-- Error Message -->
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <!-- Success Message -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
     <!-- User Information -->
     <div class="row mt-4">
         <div class="col-md-6">
