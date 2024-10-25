@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Role Management</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link href="/css/common.css" rel="stylesheet">
 </head>
@@ -35,7 +35,7 @@
                 <a class="btn btn-danger btn-sm" th:href="@{/roles/delete/{id}(id=${role.id})}" sec:authorize="hasAuthority('page.roles.remove')">
                     <i class="fas fa-trash"></i>
                 </a>
-                <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#permissionsModal"
+                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#permissionsModal"
                         th:attr="data-role-id=${role.id}"
                         th:onclick="'loadPermissions(' + ${role.id} + ')'"
                         sec:authorize="hasAuthority('page.roles.change.permissions')">
@@ -50,14 +50,14 @@
     <nav>
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                <a class="page-link" th:href="@{/roles(page=${currentPage - 1}, size=${size})}">Previous</a>
+                <a class="page-link" th:href="@{/roles(page=${currentPage - 1}, size=${size})}" aria-label="Previous">Previous</a>
             </li>
             <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                 th:classappend="${i == currentPage} ? 'active'">
                 <a class="page-link" th:text="${i + 1}" th:href="@{/roles(page=${i}, size=${size})}"></a>
             </li>
             <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
-                <a class="page-link" th:href="@{/roles(page=${currentPage + 1}, size=${size})}">Next</a>
+                <a class="page-link" th:href="@{/roles(page=${currentPage + 1}, size=${size})}" aria-label="Next">Next</a>
             </li>
         </ul>
     </nav>
@@ -66,14 +66,12 @@
 <div th:insert="~{fragments/footer}"></div>
 
 <!-- Permissions Modal -->
-<div class="modal fade" id="permissionsModal" tabindex="-1" role="dialog" aria-labelledby="permissionsModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="permissionsModal" tabindex="-1" aria-labelledby="permissionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="permissionsModalLabel">Assign Permissions</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="/roles/assign-permissions" method="post">
                 <div class="modal-body">
@@ -84,24 +82,20 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" onclick="savePermissions()">Assign Permissions</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Script to load permissions into the modal -->
 <script>
     function savePermissions() {
-         // Get the role ID
          let roleId = document.getElementById("roleId").value;
 
-         // Collect selected permissions
          const selectedPermissions = [];
          const checkboxes = document.querySelectorAll('#permissionsList .form-check-input');
 
@@ -111,49 +105,40 @@
              }
          });
 
-         // Create a form data object
          const formData = new URLSearchParams();
          formData.append("roleId", roleId);
          selectedPermissions.forEach(permissionId => {
              formData.append("permissions", permissionId);
          });
 
-         // Send the POST request to the controller
          fetch("/roles/assign-permissions", {
              method: "POST",
              headers: {
                  "Content-Type": "application/x-www-form-urlencoded",
              },
-             body: formData.toString() // Convert form data to URL-encoded string
+             body: formData.toString()
          })
          .then(response => {
              if (response.ok) {
-                 // Redirect to the roles page after a successful response
                  window.location.href = "/roles";
              } else {
-                 // Handle the case where the role is not found
                  window.location.href = "/roles?error=RoleNotFound";
              }
          })
          .catch(error => {
              console.error("Error while saving permissions:", error);
-             // Optionally, handle the error (e.g., show a message to the user)
          });
-     }
+    }
 
-
-     function loadPermissions(roleId) {
+    function loadPermissions(roleId) {
          document.getElementById("roleId").value = roleId;
 
-         // Make an AJAX call to fetch the permissions for the selected role
          fetch(`/permissions/role/${roleId}`)
              .then(response => response.json())
              .then(data => {
-                 // Clear the existing permissions in the modal
                  const permissionsList = document.getElementById("permissionsList");
                  permissionsList.innerHTML = "";
 
-                 // Populate the modal with the fetched permissions
                  data.forEach(permission => {
                      const isChecked = permission.assigned ? "checked" : "";
                      const permissionHtml = `
@@ -171,6 +156,5 @@
              });
      }
 </script>
-
 </body>
 </html>

@@ -1,13 +1,13 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg bg-light">
     <a class="navbar-brand" href="/">
         <img src="/icon.png" alt="Logo" width="30" height="30" class="d-inline-block align-top" />
         LinkEase
     </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav mr-auto">
+        <ul class="navbar-nav me-auto">
             <li class="nav-item">
                 <a class="nav-link" href="/users">
                     <i class="fas fa-users"></i> <!-- Users Icon -->
@@ -41,20 +41,20 @@
         </ul>
         <ul class="navbar-nav"> <!-- New list for the profile and logout links -->
             <li class="nav-item dropdown"> <!-- Dropdown for Profile -->
-                <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-user"></i> <!-- Profile Icon -->
                     Profile
                 </a>
-                <div class="dropdown-menu" aria-labelledby="profileDropdown">
-                    <a class="dropdown-item" href="/profile">
+                <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                    <li><a class="dropdown-item" href="/profile">
                         <i class="fas fa-user-circle"></i> <!-- Profile Icon -->
                         View Profile
-                    </a>
-                    <a class="dropdown-item" href="/profile/change-password">
+                    </a></li>
+                    <li><a class="dropdown-item" href="/profile/change-password">
                         <i class="fas fa-lock"></i> <!-- Change Password Icon -->
                         Change Password
-                    </a>
-                </div>
+                    </a></li>
+                </ul>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/logout">

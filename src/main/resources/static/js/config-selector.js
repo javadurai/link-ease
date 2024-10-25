@@ -33,7 +33,7 @@ function updateConfigValueField() {
     }
 
     configValueContainer.innerHTML = `
-        <label for="configValue">Config Value</label>
+        <label for="configValue" class="form-group">Config Value</label>
         ${inputField}
     `;
 }
