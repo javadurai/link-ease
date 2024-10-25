@@ -3,6 +3,7 @@ package com.linkease.service;
 import com.linkease.domain.Config;
 import com.linkease.domain.ConfigType;
 import com.linkease.repository.ConfigRepository;
+import com.linkease.repository.ConfigTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,12 +11,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ConfigService {
 
     private final ConfigRepository configRepository;
+    private  final ConfigTypeRepository configTypeRepository;
 
     public List<Config> getAllConfigs() {
         return configRepository.findAll();
@@ -49,6 +52,10 @@ public class ConfigService {
         // Perform validation based on the config type (optional)
         ConfigType configType = config.getConfigType();
         String value = config.getConfigValue();
+        Optional<ConfigType> configTypeOptional = configTypeRepository.findById(configType.getId());
+        if(configTypeOptional.isPresent()){
+            configType = configTypeOptional.get();
+        }
 
         switch (configType.getType()) {
             case "Boolean":
