@@ -29,10 +29,10 @@ public class DefaultAdminUserConfig {
             String defaultAdminEmail = "admin@example.com";
 
             // Fetch the admin role from the database
-            Role adminRole = roleRepository.findByName("ROLE_ADMIN")
+            Role adminRole = roleRepository.findByName("ROLES_ADMIN")
                     .orElseGet(() -> {
                         Role newRole = new Role();
-                        newRole.setName("ROLE_ADMIN");
+                        newRole.setName("ROLES_ADMIN");
                         return roleRepository.save(newRole); // Save and return new admin role
                     });
 

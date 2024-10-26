@@ -20,33 +20,57 @@
     <!-- Include Alerts -->
     <div th:insert="~{fragments/alerts}"></div>
 
-    <table class="table table-striped table-hover" sec:authorize="hasAuthority('page.roles.list')">
-        <thead class="thead-dark">
-        <tr>
-            <th>Role</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="role : ${roles}">
-            <td th:text="${role.name} + ' (Has ' + ${role.permissionsCount} + ' permissions)'"></td>
-            <td>
-                <a class="btn btn-warning btn-sm" th:href="@{/roles/edit/{id}(id=${role.id})}" sec:authorize="hasAuthority('page.roles.edit')">
-                    <i class="fas fa-edit"></i>
-                </a>
-                <a class="btn btn-danger btn-sm" th:href="@{/roles/delete/{id}(id=${role.id})}" sec:authorize="hasAuthority('page.roles.remove')">
-                    <i class="fas fa-trash"></i>
-                </a>
-                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#permissionsModal"
-                        th:attr="data-role-id=${role.id}"
-                        th:onclick="'loadPermissions(' + ${role.id} + ')'"
-                        sec:authorize="hasAuthority('page.roles.change.permissions')">
-                    <i class="fas fa-key"></i>
-                </button>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="container" sec:authorize="hasAuthority('page.roles.list')">
+        <div class="d-flex justify-content-between">
+            <h2>Role</h2>
+            <h2>Actions</h2>
+        </div>
+
+        <div th:each="role : ${roles}" class="role-item mb-3">
+            <!-- Role Row -->
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                <div class="d-flex align-items-center">
+                    <!-- Expand/Collapse Icon -->
+                    <i class="fas fa-plus-circle me-2"
+                       data-bs-toggle="collapse"
+                       th:if="${role.permissionsCount > 0}"
+                       th:attr="data-bs-target='#collapseExample_' + ${role.id}"
+                       th:attrappend="aria-expanded='false', aria-controls='collapseExample_' + ${role.id}"></i>
+
+                    <!-- Role Name -->
+                    <span th:text="${role.name} + ' (Has ' + ${role.permissionsCount} + ' permissions)'"></span>
+                </div>
+
+                <!-- Actions -->
+                <div class="action-buttons">
+                    <a class="btn btn-warning btn-sm" th:href="@{/roles/edit/{id}(id=${role.id})}" sec:authorize="hasAuthority('page.roles.edit')">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a class="btn btn-danger btn-sm" th:href="@{/roles/delete/{id}(id=${role.id})}" sec:authorize="hasAuthority('page.roles.remove')">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                    <button class="btn btn-info btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#permissionsModal"
+                            th:attr="data-role-id=${role.id}, data-role-name=${role.name}"
+                            onclick="loadPermissionsFromButton(this)"
+                            sec:authorize="hasAuthority('page.roles.change.permissions')">
+                        <i class="fas fa-key"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Collapsible Permissions Section -->
+            <div th:id="'collapseExample_' + ${role.id}" class="collapse mt-2">
+                <div class="permissions-content p-3 border rounded">
+                    <p class="mb-1"><strong>Permissions:</strong></p>
+                    <ul class="mb-0 ps-3">
+                        <li th:each="permission : ${role.permissions}" th:text="${permission.name}"></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Pagination -->
     <nav>
@@ -102,62 +126,87 @@
 
 <!-- Script to load permissions into the modal -->
 <script>
-    function loadPermissions(roleId) {
-         document.getElementById("roleId").value = roleId;
 
-         fetch(`/permissions/role/${roleId}`)
-             .then(response => response.json())
-             .then(data => {
-                 const permissionsSelect = document.getElementById("permissionsSelect");
-                 permissionsSelect.innerHTML = ""; // Clear existing options
+    // Toggle icon between plus and minus when expanded/collapsed
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.role-item i').forEach(icon => {
+            icon.addEventListener('click', function () {
+                console.log(this);
+                const target = document.querySelector(this.getAttribute('data-bs-target'));
+                const isExpanded = this.getAttribute('aria-expanded') == "false";
 
-                 data.forEach(permission => {
-                     const isSelected = permission.assigned ? "selected" : "";
-                     const optionHtml = `<option value="${permission.id}" ${isSelected}>${permission.name}</option>`;
-                     permissionsSelect.insertAdjacentHTML('beforeend', optionHtml);
-                 });
+                console.log(isExpanded);
 
-                 // Initialize or refresh Select2
-                $('#permissionsSelect').select2({
-                   theme: 'bootstrap-5',
-                   tags: true,
-               });
+                // Toggle icon
+                this.classList.toggle('fa-plus-circle', isExpanded);
+                this.classList.toggle('fa-minus-circle', !isExpanded);
+            });
+        });
+    });
 
-             })
-             .catch(error => {
-                 console.error("Error fetching permissions:", error);
-             });
-     }
+function loadPermissionsFromButton(button) {
+    const roleId = button.getAttribute("data-role-id");
+    const roleName = button.getAttribute("data-role-name");
+    loadPermissions(roleId, roleName);
+}
 
-     function savePermissions() {
-         let roleId = document.getElementById("roleId").value;
+function loadPermissions(roleId, roleName) {
+    document.getElementById("roleId").value = roleId;
+    document.getElementById("permissionsModalLabel").innerHTML = "Assign Permissions to <strong class='font-monospace'>" + roleName + "</strong>";
 
-         const selectedPermissions = $('#permissionsSelect').val(); // Get selected permissions
+    fetch(`/permissions/role/${roleId}`)
+        .then(response => response.json())
+        .then(data => {
+            const permissionsSelect = document.getElementById("permissionsSelect");
+            permissionsSelect.innerHTML = ""; // Clear existing options
 
-         const formData = new URLSearchParams();
-         formData.append("roleId", roleId);
-         selectedPermissions.forEach(permissionId => {
-             formData.append("permissions", permissionId);
-         });
+            data.forEach(permission => {
+                const isSelected = permission.assigned ? "selected" : "";
+                const optionHtml = `<option value="${permission.id}" ${isSelected}>${permission.name}</option>`;
+                permissionsSelect.insertAdjacentHTML('beforeend', optionHtml);
+            });
 
-         fetch("/roles/assign-permissions", {
-             method: "POST",
-             headers: {
-                 "Content-Type": "application/x-www-form-urlencoded",
-             },
-             body: formData.toString()
-         })
-         .then(response => {
-             if (response.ok) {
-                 window.location.href = "/roles";
-             } else {
-                 window.location.href = "/roles?error=RoleNotFound";
-             }
-         })
-         .catch(error => {
-             console.error("Error while saving permissions:", error);
-         });
-     }
+            // Initialize or refresh Select2
+            $('#permissionsSelect').select2({
+                theme: 'bootstrap-5',
+                tags: true,
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching permissions:", error);
+        });
+}
+
+
+ function savePermissions() {
+     let roleId = document.getElementById("roleId").value;
+
+     const selectedPermissions = $('#permissionsSelect').val(); // Get selected permissions
+
+     const formData = new URLSearchParams();
+     formData.append("roleId", roleId);
+     selectedPermissions.forEach(permissionId => {
+         formData.append("permissions", permissionId);
+     });
+
+     fetch("/roles/assign-permissions", {
+         method: "POST",
+         headers: {
+             "Content-Type": "application/x-www-form-urlencoded",
+         },
+         body: formData.toString()
+     })
+     .then(response => {
+         if (response.ok) {
+             window.location.href = "/roles";
+         } else {
+             window.location.href = "/roles?error=RoleNotFound";
+         }
+     })
+     .catch(error => {
+         console.error("Error while saving permissions:", error);
+     });
+ }
 </script>
 </body>
 </html>

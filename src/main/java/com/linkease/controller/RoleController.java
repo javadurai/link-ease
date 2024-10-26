@@ -9,13 +9,17 @@ import com.linkease.exception.ResourceNotFoundException;
 import com.linkease.repository.PermissionRepository;
 import com.linkease.repository.RoleRepository;
 import com.linkease.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashSet;
 import java.util.List;
@@ -64,9 +68,26 @@ public class RoleController {
 
     // Create a new role
     @PostMapping("/create")
-    public String createRole(@ModelAttribute Role role) {
-        roleRepository.save(role);
-        return "redirect:/roles";
+    public String createRole(@Valid @ModelAttribute Role role, BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            // Validation failed, return to the form with validation errors
+            model.addAttribute("errorMessage", "Validation error occurred");
+            return "roles/create";
+        }
+
+        try {
+            roleRepository.save(role);
+            return "redirect:/roles"; // Success
+        } catch (DataIntegrityViolationException e) {
+            // Handle unique constraint violation error (e.g., role name already exists)
+            model.addAttribute("errorMessage", "Role with name '" + role.getName() + "' already exists. Please choose a different name.");
+            return "roles/create"; // Return back to the role creation page with an error message
+        } catch (Exception e) {
+            // Handle other unexpected exceptions
+            model.addAttribute("errorMessage", "An unexpected error occurred: " + e.getMessage());
+            return "roles/create"; // Return back to the role creation page with a general error message
+        }
     }
 
     // Show form to edit an existing role
@@ -97,21 +118,33 @@ public class RoleController {
     }
 
     @PostMapping("/assign-permissions")
-    public String assignPermissions(@RequestParam("roleId") Long roleId, @RequestParam("permissions") List<Long> permissionIds) {
+    public String assignPermissions(@RequestParam("roleId") Long roleId,
+                                    @RequestParam(value = "permissions", required = false) List<Long> permissionIds,
+                                    RedirectAttributes redirectAttributes) {
         Optional<Role> roleOptional = roleRepository.findById(roleId);
+
         // Check if the role exists
         if (roleOptional.isPresent()) {
             Role role = roleOptional.get();
-            // Fetch the selected permissions from the database
-            List<Permission> selectedPermissions = permissionRepository.findAllById(permissionIds);
-            // Make sure the collection is initialized (use getPermissions() to force initialization if using Lazy fetching)
-            role.getPermissions().clear();  // Clear existing permissions
-            // Assign the permissions to the role
-            role.setPermissions(new HashSet<>(selectedPermissions));
+
+            if (permissionIds == null || permissionIds.isEmpty()) {
+                // Clear existing permissions if no new permissions are provided
+                role.getPermissions().clear();
+            } else {
+                // Fetch the selected permissions from the database
+                List<Permission> selectedPermissions = permissionRepository.findAllById(permissionIds);
+
+                // Clear existing permissions and assign the new ones
+                role.getPermissions().clear();
+                role.setPermissions(new HashSet<>(selectedPermissions));
+            }
+
             // Save the role with updated permissions
             roleRepository.save(role);
+            redirectAttributes.addFlashAttribute("success", "Permissions updated successfully.");
         } else {
-            // Handle the case when the role is not found (e.g., throw an exception or add a redirect with an error message)
+            // Handle the case when the role is not found
+            redirectAttributes.addFlashAttribute("error", "Role not found.");
             return "redirect:/roles?error=RoleNotFound";
         }
         return "redirect:/roles";

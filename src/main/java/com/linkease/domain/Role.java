@@ -1,6 +1,8 @@
 package com.linkease.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -15,6 +17,8 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Role name cannot be null")
+    @Size(min = 3, max = 50, message = "Role name must be between 3 and 50 characters")
     @Column(unique = true, nullable = false)
     private String name;
 
@@ -32,7 +36,7 @@ public class Role {
     @EqualsAndHashCode.Exclude
     private Set<User> users;
 
-    public int getPermissionsCount(){
+    public int getPermissionsCount() {
         return permissions != null ? permissions.size() : 0;
     }
 }

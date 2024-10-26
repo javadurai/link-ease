@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Document Metadata</title>
+</head>
+<body>
+<h1>Document Metadata</h1>
+<div th:if="${error}">
+    <p th:text="${error}"></p>
+</div>
+<table th:if="${metadata}">
+    <thead>
+    <tr>
+        <th>Metadata Field</th>
+        <th>Value</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="entry : ${metadata}">
+        <td th:text="${entry.key}">Field</td>
+        <td th:text="${entry.value}">Value</td>
+    </tr>
+    </tbody>
+</table>
+<a href="/doc">Back to Upload</a>
+</body>
+</html>

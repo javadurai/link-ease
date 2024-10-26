@@ -44,11 +44,11 @@
                     <i class="fas fa-trash"></i>
                 </a>
                 <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#rolesModel"
-                        th:attr="data-user-id=${user.id}"
-                        th:onclick="'loadRoles(' + ${user.id} + ')'">
+                        th:attr="data-user-id=${user.id}, data-user-name=${user.fullName}"
+                        onclick="loadRolesFromButton(this)">
                     <i class="fas fa-user-tag"></i>
                 </button>
-<!--                <a th:href="@{/users/reset-password/{id}(id=${user.id})}" class="btn btn-secondary btn-sm">-->
+                <!--                <a th:href="@{/users/reset-password/{id}(id=${user.id})}" class="btn btn-secondary btn-sm">-->
 <!--                    <i class="fas fa-key"></i>-->
 <!--                </a>-->
             </td>
@@ -145,8 +145,15 @@
         });
     }
 
-    function loadRoles(userId) {
+    function loadRolesFromButton(button) {
+        const userId = button.getAttribute("data-user-id");
+        const userName = button.getAttribute("data-user-name");
+        loadRoles(userId, userName);
+    }
+
+    function loadRoles(userId, userName) {
         document.getElementById("userId").value = userId;
+        document.getElementById("rolesModelLabel").innerHTML = "Assign Roles to <strong class='font-monospace'>" + userName + "</strong>";
 
         // Make an AJAX call to fetch the Roles for the selected role
         fetch(`/roles/user/${userId}`)

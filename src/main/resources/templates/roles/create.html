@@ -18,6 +18,9 @@
         <div class="mb-3">
             <label for="name" class="form-group">Role Name:</label>
             <input type="text" id="name" th:field="*{name}" class="form-control" required/>
+            <div th:if="${#fields.hasErrors('name')}" class="alert alert-danger">
+                <span th:errors="*{name}"></span>
+            </div>
         </div>
         <div class="mb-3">
             <button type="submit" class="btn btn-success">
@@ -25,6 +28,13 @@
             </button>
         </div>
     </form>
+
+    <!-- Display global error message -->
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+
 </div>
 
 <div th:insert="~{fragments/footer}"></div>
