@@ -23,19 +23,25 @@ public class DocumentController {
         return "doc/upload";
     }
 
-    // Handle the file upload and extract metadata
+    // Handle the file upload, extract metadata, and content
     @PostMapping("/upload")
     public String handleFileUpload(@RequestParam("file") MultipartFile file, Model model) {
         try (InputStream stream = file.getInputStream()) {
+            // Initialize metadata object
             Metadata metadata = new Metadata();
-            tika.parse(stream, metadata);
 
+            // Parse the document to extract content and metadata
+            String content = tika.parseToString(stream, metadata);
+
+            // Extract metadata into a Map
             Map<String, String> metadataMap = new HashMap<>();
             for (String name : metadata.names()) {
                 metadataMap.put(name, metadata.get(name));
             }
 
+            // Add metadata and content to the model
             model.addAttribute("metadata", metadataMap);
+            model.addAttribute("content", content);
         } catch (Exception e) {
             model.addAttribute("error", "Failed to process file: " + e.getMessage());
         }
